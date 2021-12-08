@@ -834,7 +834,7 @@ class EntityProxy:
     def nav(self, nav_property):
         """Navigates to given navigation property and returns the EntitySetProxy"""
 
-        # for now duplicated with simillar method in entity set proxy class
+        # for now duplicated with similar method in entity set proxy class
         try:
             navigation_property = self._entity_type.nav_proprty(nav_property)
         except KeyError:
@@ -1264,7 +1264,7 @@ class EntitySetProxy:
     def __init__(self, service, entity_set, alias=None, parent_last_segment=None):
         """Creates new Entity Set object
 
-            @param alias  in case the entity set is access via assossiation
+            @param alias  in case the entity set is access via association
             @param parent_last_segment  in case of association also parent key must be used
         """
         self._service = service

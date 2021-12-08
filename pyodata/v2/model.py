@@ -420,7 +420,7 @@ class EdmDateTimeTypTraits(EdmPrefixedTypTraits):
             if FIX_SCREWED_UP_MINIMAL_DATETIME_VALUE and int(value) < -62135596800000:
                 # Some service providers return false minimal date values.
                 # -62135596800000 is the lowest value PyOData could read.
-                # This workaroud fixes this issue and returns 0001-01-01 00:00:00+00:00 in such a case.
+                # This workaround fixes this issue and returns 0001-01-01 00:00:00+00:00 in such a case.
                 value = datetime.datetime(year=1, day=1, month=1, tzinfo=current_timezone())
             elif FIX_SCREWED_UP_MAXIMUM_DATETIME_VALUE and int(value) > 253402300799999:
                 value = datetime.datetime(year=9999, day=31, month=12, tzinfo=current_timezone())

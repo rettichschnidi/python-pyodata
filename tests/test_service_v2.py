@@ -341,7 +341,7 @@ def test_entity_key_simple_named_invalid(service):
 
 
 def test_entity_key_complex_valid(service):
-    """Test valid creationg of complex key"""
+    """Test valid creation of complex key"""
 
     key = EntityKey(
         service.schema.entity_type('TemperatureMeasurement'),
@@ -2339,7 +2339,7 @@ def test_parsing_of_datetime_before_unix_time(service):
 
 @responses.activate
 def test_mismatched_etags_in_body_and_header(service):
-    """Test creating entity with missmatched etags"""
+    """Test creating entity with mismatched etags"""
 
     responses.add(
         responses.POST,
