@@ -31,8 +31,16 @@ Print unique identification (Id) and last name of all employees:
 .. code-block:: python
 
     employees = northwind.entity_sets.Employees.get_entities().select('EmployeeID,LastName').execute()
-    for employee in employees:
-        print(employee.EmployeeID, employee.LastName)
+    while True:
+        for employee in employees:
+            print(employee.EmployeeID, employee.LastName)
+
+        # Stop if server has no more entities left
+        if employees.next_url is None:
+            break
+
+        # We got a partial answer - continue with next page
+        employees = northwind.entity_sets.Employees.get_entities().next_url(employees.next_url).execute()
 
 
 Get entities matching a filter
