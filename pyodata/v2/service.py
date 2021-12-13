@@ -238,6 +238,7 @@ class ODataHttpRequest:
         self._headers = headers or dict()
         self._logger = logging.getLogger(LOGGER_NAME)
         self._customs = {}  # string -> string hash
+        self._next_url = None
 
     @property
     def handler(self):
@@ -299,7 +300,10 @@ class ODataHttpRequest:
 
            Fetches HTTP response and returns processed result"""
 
-        url = urljoin(self._url, self.get_path())
+        if self._next_url:
+            url = self._next_url
+        else:
+            url = urljoin(self._url, self.get_path())
         # pylint: disable=assignment-from-none
         body = self.get_body()
 
@@ -616,6 +620,11 @@ class QueryRequest(ODataHttpRequest):
             self._count = True
         return self
 
+    def next_url(self, next_url):
+        """Sets the URL to be fetched. Takes precedence over all query parameters."""
+        self._next_url = next_url
+        return self
+
     def expand(self, expand):
         """Sets the expand expressions."""
         self._expand = expand
@@ -667,6 +676,9 @@ class QueryRequest(ODataHttpRequest):
         }
 
     def get_query_params(self):
+        if self._next_url:
+            return {}
+
         qparams = super(QueryRequest, self).get_query_params()
 
         if self._top is not None:
@@ -689,6 +701,9 @@ class QueryRequest(ODataHttpRequest):
 
         if self._inlinecount:
             qparams['$inlinecount'] = 'allpages'
+
+        if self._next_url is not None:
+            qparams['$skiptoken'] = self._next_url
 
         return qparams
 
@@ -1240,12 +1255,21 @@ class GetEntitySetRequest(QueryRequest):
         return self
 
 
-class ListWithTotalCount(list):
-    """A list with the additional property total_count"""
+class ListWithProgressIndication(list):
+    """
+    A list with the additional property total_count and next_url.
 
-    def __init__(self, total_count):
-        super(ListWithTotalCount, self).__init__()
+    If set, use next_url to query the next batch of entities.
+    """
+
+    def __init__(self, total_count, next_url):
+        super(ListWithProgressIndication, self).__init__()
         self._total_count = total_count
+        self._next_url = next_url
+
+    @property
+    def next_url(self):
+        return self._next_url
 
     @property
     def total_count(self):
@@ -1381,7 +1405,8 @@ class EntitySetProxy:
         return EntityGetRequest(get_entity_handler, entity_key, self)
 
     def get_entities(self):
-        """Get all entities"""
+        """Get some, potentially all entities"""
+
         def get_entities_handler(response):
             """Gets entity set from HTTP Response"""
 
@@ -1396,15 +1421,18 @@ class EntitySetProxy:
 
             entities = content['d']
             total_count = None
+            next_url = None
 
             if isinstance(entities, dict):
                 if '__count' in entities:
                     total_count = int(entities['__count'])
+                if '__next' in entities:
+                    next_url = entities['__next']
                 entities = entities['results']
 
             self._logger.info('Fetched %d entities', len(entities))
 
-            result = ListWithTotalCount(total_count)
+            result = ListWithProgressIndication(total_count, next_url)
             for props in entities:
                 entity = EntityProxy(self._service, self._entity_set, self._entity_set.entity_type, props)
                 result.append(entity)
@@ -1412,8 +1440,11 @@ class EntitySetProxy:
             return result
 
         entity_set_name = self._alias if self._alias is not None else self._entity_set.name
-        return GetEntitySetRequest(self._service.url, self._service.connection, get_entities_handler,
-                                   self._parent_last_segment + entity_set_name, self._entity_set.entity_type)
+        return GetEntitySetRequest(self._service.url,
+                                   self._service.connection,
+                                   get_entities_handler,
+                                   self._parent_last_segment + entity_set_name,
+                                   self._entity_set.entity_type)
 
     def create_entity(self, return_code=HTTP_CODE_CREATED):
         """Creates a new entity in the given entity-set."""
