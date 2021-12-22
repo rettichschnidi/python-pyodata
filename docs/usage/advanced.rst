@@ -105,3 +105,14 @@ If you need to work with many Entity Sets the same way or if you just need to pi
 
     count = getattr(northwind.entity_sets, 'Employees').get_entities().count().execute()
     print(count)
+
+Avoid default values for nulled values
+--------------------------------------
+
+To avoid missing property values getting substituted by their (type specific) default values, the service can be
+configured to retain missing values.
+
+.. code-block:: python
+
+    count = getattr(northwind.entity_sets, 'Employees').get_entities().count().execute()
+    print(count)
