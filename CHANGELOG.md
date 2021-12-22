@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- Prevent substitution of missing, nullable values - Reto Schneider
+
+### Fixed
 - Fix Increased robustness when schema with empty properties is returned
 
 ### Changed
