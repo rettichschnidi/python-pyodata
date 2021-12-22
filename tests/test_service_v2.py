@@ -24,6 +24,13 @@ def service(schema):
     return pyodata.v2.service.Service(URL_ROOT, schema, requests)
 
 
+@pytest.fixture
+def service_retain_null(schema):
+    """Service fixture which keeps null values as such"""
+    assert schema.namespaces
+    return pyodata.v2.service.Service(URL_ROOT, schema, requests, retain_null=True)
+
+
 @responses.activate
 def test_create_entity(service):
     """Basic test on creating entity"""
@@ -884,6 +891,88 @@ def test_get_entities(service):
     assert empls[0].ID == 669
     assert empls[0].NameFirst == 'Yennefer'
     assert empls[0].NameLast == 'De Vengerberg'
+
+
+@responses.activate
+def test_get_null_value_from_null_preserving_service(service_retain_null):
+    """Get entity with missing property value as None type"""
+
+    # pylint: disable=redefined-outer-name
+
+    responses.add(
+        responses.GET,
+        f"{service_retain_null.url}/Employees",
+        json={'d': {
+            'results': [
+                {
+                    'ID': 1337,
+                    'NameFirst': 'Neo',
+                    'NameLast': None
+                }
+            ]
+        }},
+        status=200)
+
+    request = service_retain_null.entity_sets.Employees.get_entities()
+
+    the_ones = request.execute()
+    assert the_ones[0].ID == 1337
+    assert the_ones[0].NameFirst == 'Neo'
+    assert the_ones[0].NameLast is None
+
+
+@responses.activate
+def test_get_null_value_from_non_null_preserving_service(service):
+    """Get entity with missing property value as default type"""
+
+    # pylint: disable=redefined-outer-name
+
+    responses.add(
+        responses.GET,
+        f"{service.url}/Employees",
+        json={'d': {
+            'results': [
+                {
+                    'ID': 1337,
+                    'NameFirst': 'Neo',
+                    'NameLast': None
+                }
+            ]
+        }},
+        status=200)
+
+    request = service.entity_sets.Employees.get_entities()
+
+    the_ones = request.execute()
+    assert the_ones[0].ID == 1337
+    assert the_ones[0].NameFirst == 'Neo'
+    assert the_ones[0].NameLast == ''
+
+
+@responses.activate
+def test_get_non_nullable_value(service_retain_null):
+    """Get error when receiving a null value for a non-nullable property"""
+
+    # pylint: disable=redefined-outer-name
+
+    responses.add(
+        responses.GET,
+        f"{service_retain_null.url}/Employees",
+        json={'d': {
+            'results': [
+                {
+                    'ID': None,
+                    'NameFirst': 'Neo',
+                }
+            ]
+        }},
+        status=200)
+
+    with pytest.raises(PyODataException) as e_info:
+        service_retain_null.entity_sets.Employees.get_entities().execute()
+
+    assert str(e_info.value) == 'Value of non-nullable Property ID is null'
+
 
 @responses.activate
 def test_navigation_multi(service):
