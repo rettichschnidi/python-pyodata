@@ -763,6 +763,8 @@ class EntityProxy:
                 if type_proprty.name in proprties:
                     if proprties[type_proprty.name] is not None:
                         self._cache[type_proprty.name] = type_proprty.from_json(proprties[type_proprty.name])
+                    elif self._service.retain_null:
+                        self._cache[type_proprty.name] = None
                     else:
                         # null value is in literal form for now, convert it to python representation
                         self._cache[type_proprty.name] = type_proprty.from_literal(type_proprty.typ.null_value)
@@ -1581,10 +1583,11 @@ class FunctionContainer:
 class Service:
     """OData service"""
 
-    def __init__(self, url, schema, connection):
+    def __init__(self, url, schema, connection, retain_null=False):
         self._url = url
         self._schema = schema
         self._connection = connection
+        self._retain_null = retain_null
         self._entity_container = EntityContainer(self)
         self._function_container = FunctionContainer(self)
 
@@ -1607,6 +1610,12 @@ class Service:
         """Service connection"""
 
         return self._connection
+
+    @property
+    def retain_null(self):
+        """Whether to respect null-ed values or to substitute them with type specific default values"""
+
+        return self._retain_null
 
     @property
     def entity_sets(self):
