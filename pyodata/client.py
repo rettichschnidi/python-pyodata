@@ -38,7 +38,7 @@ class Client:
     ODATA_VERSION_2 = 2
 
     def __new__(cls, url, connection, odata_version=ODATA_VERSION_2, namespaces=None,
-                config: pyodata.v2.model.Config = None, metadata: str = None):
+                config: pyodata.v2.model.Config = None, metadata: str = None, retain_null=False):
         """Create instance of the OData Client for given URL"""
 
         logger = logging.getLogger('pyodata.client')
@@ -69,7 +69,7 @@ class Client:
 
             # create service instance based on model we have
             logger.info('Creating OData Service (version: %d)', odata_version)
-            service = pyodata.v2.service.Service(url, schema, connection)
+            service = pyodata.v2.service.Service(url, schema, connection, retain_null)
 
             return service
 
