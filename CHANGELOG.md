@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- Prevent substitution of missing, nullable values - Reto Schneider
 
 ## [1.8.0]
 
