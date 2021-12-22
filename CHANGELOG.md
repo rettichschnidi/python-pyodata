@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+- Datetime support for Edm.DateTimeOffset - Reto Schneider
+
 ## [1.7.1]
 
 ### Fixed
