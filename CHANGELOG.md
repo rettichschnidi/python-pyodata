@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ### Fixed
-- Use valid default value for Edm.DateTimeOffset - Reto Schneider
+- Use valid default value for Edm.DateTimeOffset, align Edm.DateTime to it - Reto Schneider
 
 ## [1.8.0]
 
