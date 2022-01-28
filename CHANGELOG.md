@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - Use valid default value for Edm.DateTimeOffset - Reto Schneider
 
+### Changed
+- Adjusted Edm.DateTime default value to January 1, 1753 A.D - Reto Schneider
+
 ## [1.8.0]
 
 ### Fixed
