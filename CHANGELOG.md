@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Fix Increased robustness when schema with empty properties is returned
 
+### Changed
+- Adjusted Edm.DateTime default value to January 1, 1753 A.D - Reto Schneider
+
 ## [1.8.0]
 
 ### Fixed
