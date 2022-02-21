@@ -21,7 +21,7 @@
         <NavigationProperty Name="Customers" Relationship="NorthwindModel.CustomerCustomerDemo" FromRole="CustomerDemographics" ToRole="Customers" />
       </EntityType>
       <EntityType Name="Customer">
-        <Key>
+        <Key>"
           <PropertyRef Name="CustomerID" />
         </Key>
         <Property Name="CustomerID" Type="Edm.String" Nullable="false" MaxLength="5" Unicode="true" FixedLength="true" />
